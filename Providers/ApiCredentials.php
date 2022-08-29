@@ -4,7 +4,6 @@ namespace Webkul\UVDesk\ApiBundle\Providers;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\UserInstance;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 
 class ApiCredentials implements UserProviderInterface
 {
@@ -27,8 +27,8 @@ class ApiCredentials implements UserProviderInterface
     {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('user, userInstance')
-            ->from(User::class, 'user')
-            ->leftJoin(UserInstance::class, 'userInstance', 'WITH', 'user.id = userInstance.user')
+            ->from(CoreEntities\User::class, 'user')
+            ->leftJoin(CoreEntities\UserInstance::class, 'userInstance', 'WITH', 'user.id = userInstance.user')
             ->leftJoin('userInstance.supportRole', 'supportRole')
             ->where('user.email = :email')->setParameter('email', trim($username))
             ->andWhere('userInstance.isActive = :isActive')->setParameter('isActive', true)
@@ -36,8 +36,7 @@ class ApiCredentials implements UserProviderInterface
             ->setParameter('roleOwner', 1)
             ->setParameter('roleAdmin', 2)
             ->setParameter('roleAgent', 3)
-            ->setMaxResults(1)
-        ;
+            ->setMaxResults(1);
         
         $response = $queryBuilder->getQuery()->getResult();
 

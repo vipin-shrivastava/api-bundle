@@ -2,20 +2,19 @@
 
 namespace Webkul\UVDesk\ApiBundle\API;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\TicketBundle\Entity\Ticket;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\Ticket;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\TicketStatus;
-use Webkul\UVDesk\CoreFrameworkBundle\Entity\User;
-use Webkul\UVDesk\CoreFrameworkBundle\Workflow\Events as CoreWorkflowEvents;
+use Webkul\UVDesk\CoreFrameworkBundle\Entity as CoreEntities;
 
 class Threads extends AbstractController
 {
@@ -32,7 +31,7 @@ class Threads extends AbstractController
             return new JsonResponse($json, Response::HTTP_BAD_REQUEST);
         }
 
-        $ticket = $this->getDoctrine()->getRepository(Ticket::class)->findOneById($ticketid);
+        $ticket = $this->getDoctrine()->getRepository(CoreEntities\Ticket::class)->findOneById($ticketid);
 
         // Check for empty ticket
         if (empty($ticket)) {
@@ -57,9 +56,9 @@ class Threads extends AbstractController
             $actAsType = strtolower($data['actAsType']);
             $actAsEmail = $data['actAsEmail'];
             if ($actAsType == 'customer') {
-                $user = $this->getDoctrine()->getRepository(User::class)->findOneByEmail($data['actAsEmail']);
+                $user = $this->getDoctrine()->getRepository(CoreEntities\User::class)->findOneByEmail($data['actAsEmail']);
             } else if($actAsType == 'agent' ) {
-                $user = $this->getDoctrine()->getRepository(User::class)->findOneByEmail($data['actAsEmail']);
+                $user = $this->getDoctrine()->getRepository(CoreEntities\User::class)->findOneByEmail($data['actAsEmail']);
             } else {
                 $json['error'] = 'Error! invalid actAs details.';
                 $json['description'] = 'possible values actAsType: customer,agent. Also provide actAsEmail parameter with actAsType agent.';
@@ -92,7 +91,7 @@ class Threads extends AbstractController
         ];
 
         if (!empty($data['status'])){
-            $ticketStatus =  $this->getDoctrine()->getRepository(TicketStatus::class)->findOneByCode($data['status']);
+            $ticketStatus =  $this->getDoctrine()->getRepository(CoreEntities\TicketStatus::class)->findOneByCode($data['status']);
             $ticket->setStatus($ticketStatus);
         }
         if (isset($data['to'])) {
