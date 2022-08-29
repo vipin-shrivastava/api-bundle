@@ -24,7 +24,8 @@ class Threads extends AbstractController
     public function saveThread(Request $request, $ticketid, ContainerInterface $container)
     {
         $data = $request->request->all()? : json_decode($request->getContent(),true);
-
+        $entityManager = $this->getDoctrine()->getManager();
+        
         if (!isset($data['threadType']) || !isset($data['message'])) {
             $json['error'] = 'missing fields';
             $json['description'] = 'required: threadType: reply|forward|note , message';
