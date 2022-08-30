@@ -70,10 +70,6 @@ class Tickets extends AbstractController
             }
         }
 
-        if ($request->query->get('limit')) {
-            $request->query->set('limit', $request->query->get('limit'));
-        }
-
         $json = $ticketRepository->getAllTickets($request->query, $container);
 
         $json['userDetails'] = [
